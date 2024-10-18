@@ -189,15 +189,31 @@ namespace {
     void PlotterGUI::actionPerformed(GObservable* obj) {
         /* Was it the load button? If so, load things. */
         if (obj == loadButton) {
-            string toLoad = fileChooser->getSelectedItem();
-            if (toLoad != kNotSelected) {
+            string toLoad = GFileChooser::showOpenDialog();  // 打开阻塞的文件选择对话框
+            if (!toLoad.empty()) {  // 如果用户选择了文件
+                cout << "Selected file: " << toLoad << endl;
                 clearGraphics();
 
-                ifstream input("res/" + toLoad);
-                runPlotterScript(input);
+                ifstream input(toLoad);
+                if (!input) {
+                    cerr << "Error: Unable to open file: " << toLoad << endl;
+                } else {
+                    cout << "Loading file: " << toLoad << "..." << endl;
+                    runPlotterScript(input);
+                    cout << "File loaded successfully." << endl;
+
+                    // 在此处添加一个事件循环保持窗口运行
+                    cout << "Drawing complete. Press Enter to exit..." << endl;
+                    cin.get();  // 等待用户输入，保持窗口不关闭
+                }
+            } else {
+                cout << "No file selected or file selection canceled." << endl;
             }
         }
     }
+
+
+
 
     void PlotterGUI::clearGraphics() {
         displayLines.clear();
